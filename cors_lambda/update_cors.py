@@ -85,13 +85,16 @@ def validate_cors(channel_url):
         elif response_headers['access-control-expose-headers'] != "content-length,content-range":
             return False
         else:
+            print(f"{color.GREEN}Successfully validated headers for {color.CYAN}{channel_url}{color.END}")
+            print(f"{color.BLUE}New headers:{color.END}")
+            print(json.dumps(dict(response_headers), indent=2))
             return True
     except requests.exceptions.RequestException as e:
         raise SystemExit(e)
         
 
 
-def get_channel_url(distro_id, profile):
+def get_channel_url(distro_id, profile, client):
     # Are we working in the sandbox account? If not, use ACVDB to lookup the channel URL
     if profile != 'sandbox':
         try:
@@ -124,9 +127,9 @@ def get_channel_url(distro_id, profile):
     elif profile == 'sandbox':
         # Lookup the channel_url in the sandbox table
         print(f"{color.YELLOW}I'm in sandbox mode{color.END}")
-        # config = client.get_distribution_config(Id=distro_id)
-        # channel_url = config['DistributionConfig']['Origins']['Items'][0]['CustomHeaders']['Items'][0]['HeaderValue']
-        channel_url = 'https://' + distro_id.lower() + '.cloudfront.net'
+        config = client.get_distribution_config(Id=distro_id)
+        channel_url = 'https://' + config['DistributionConfig']['Aliases']['Items'][0] + '/playlist.m3u8'
+        # channel_url = 'https://' + distro_id.lower() + '.cloudfront.net'
         return channel_url
 
     else:
@@ -237,7 +240,7 @@ def main():
     for distro in distros_to_work_on:
         # Check if this distro has a channel URL
         # If it doesn't, this is probably a DEV channel or on Highwinds so we skip it
-        channel_url = get_channel_url(distro[0], args.profile)
+        channel_url = get_channel_url(distro[0], args.profile, client)
         if channel_url is None:
             print(f"{color.RED}Didn't find {color.PURPLE}{distro[0]}{color.RED} in ACVDB. Skipping...{color.END}")
             distros_skipped.append(distro[0])

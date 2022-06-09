@@ -159,6 +159,9 @@ def main():
     cursor.execute("SELECT count(*) FROM distros")
     row_count = cursor.fetchone()[0]
     print(f"Number of rows inserted into Distros: {row_count}")
+    cursor.execute("SELECT rowid, arn, (SELECT count(*) from distros WHERE lambda = lambdas.rowid GROUP BY lambda) num FROM lambdas WHERE arn LIKE '%cloudfront-cors-append%'")
+    lambda_table = cursor.fetchall()
+    print(*lambda_table, sep='\n')
 
     dbconn.commit()
     dbconn.close()
