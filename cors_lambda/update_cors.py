@@ -8,6 +8,7 @@ import os
 import json
 import psycopg2
 import pandas as pd
+from botocore.config import Config
 
 class color:
    PURPLE = '\033[1;35;48m'
@@ -42,12 +43,24 @@ CORS_HEADER_KEYS=[
     'access-control-expose-headers',
 ]
 
+AWS_CREDENTIALS = {
+    "AWS_ACCESS_KEY_ID": os.environ["AWS_ACCESS_KEY_ID"],
+    "AWS_SECRET_ACCESS_KEY": os.environ["AWS_SECRET_ACCESS_KEY"],
+}
+
+DEFAULT_WURL_AWS_ACCOUNT = "root"
+WURL_AWS_ACCOUNTS = {
+    "root": "",
+    "sandbox": "arn:aws:iam::709097557611:role/wurl-sandboxSTSRole",
+}
+
 def get_headers(channel_url):
     headers = {"Origin":"www.example.com"}
     try:
         r = requests.get(channel_url, headers=headers)
     except requests.exceptions.RequestException as e:
         print(f"{color.RED}Unable to perform HTTP request to {color.CYAN}{channel_url}{color.END}")
+        print(f"{color.RED}HTTP error was: {color.BOLD}{e}{color.END}")
         return None
     cors_headers = dict((k, r.headers[k].lower()) for k in CORS_HEADER_KEYS if k in r.headers)
     return cors_headers
@@ -58,6 +71,8 @@ def validate_cors(channel_url):
     print(f"Channel URL: {color.CYAN}{channel_url}{color.END}")
     try:
         response_headers = get_headers(channel_url)
+        if response_headers == None:
+            return False
         # print(json.dumps(dict(response_headers), indent=2))
         if "access-control-allow-origin" not in response_headers.keys():
             return False
@@ -76,35 +91,49 @@ def validate_cors(channel_url):
         
 
 
-def get_channel_url(distro_id):
-    try:
-        acvdb_conn = psycopg2.connect(
-            f"dbname='{ACVDB_DATABASE}' user='{ACVDB_USER}' host='{ACVDB_HOST}' password='{ACVDB_PASS}'"
+def get_channel_url(distro_id, profile):
+    # Are we working in the sandbox account? If not, use ACVDB to lookup the channel URL
+    if profile != 'sandbox':
+        try:
+            acvdb_conn = psycopg2.connect(
+                f"dbname='{ACVDB_DATABASE}' user='{ACVDB_USER}' host='{ACVDB_HOST}' password='{ACVDB_PASS}'"
+            )
+        except Exception as error:
+            print(f"Failed to connect to ACVDB due to the following error: {error}")
+            sys.exit(1)
+        
+        dataframe = pd.read_sql_query(
+            sql=(
+                f"select channel_url from hlsrebroadcast where cdn_dns = '{distro_id}';"
+            ),
+            con=acvdb_conn,
         )
-    except Exception as error:
-        print(f"Failed to connect to ACVDB due to the following error: {error}")
-        sys.exit(1)
-    
-    dataframe = pd.read_sql_query(
-        sql=(
-            f"select channel_url from hlsrebroadcast where cdn_dns = '{distro_id}';"
-        ),
-        con=acvdb_conn,
-    )
-    if dataframe.empty:
-        # Try looking in hlsplayout instead
-            dataframe = pd.read_sql_query(
-        sql=(
-            f"select channel_url from hlsplayout where cdn_dns = '{distro_id}';"
-        ),
-        con=acvdb_conn,
-        )
-    if dataframe.empty:
-        acvdb_conn.close()
+        if dataframe.empty:
+            # Try looking in hlsplayout instead
+                dataframe = pd.read_sql_query(
+            sql=(
+                f"select channel_url from hlsplayout where cdn_dns = '{distro_id}';"
+            ),
+            con=acvdb_conn,
+            )
+        if dataframe.empty:
+            acvdb_conn.close()
+            return None
+        #    print(f"{color.RED}Unable to find {color.PURPLE}{distro_id}{color.RED} in ACVDB{color.END}")
+        #    sys.exit(1)
+    elif profile == 'sandbox':
+        # Lookup the channel_url in the sandbox table
+        print(f"{color.YELLOW}I'm in sandbox mode{color.END}")
+        # config = client.get_distribution_config(Id=distro_id)
+        # channel_url = config['DistributionConfig']['Origins']['Items'][0]['CustomHeaders']['Items'][0]['HeaderValue']
+        channel_url = 'https://' + distro_id.lower() + '.cloudfront.net'
+        return channel_url
+
+    else:
+        # Something's wrong and we can't determine the profile
+        print(f"{color.RED}Cannot determine which profile I'm in. It's currently set to {color.PURPLE}{profile}{color.END}")
         return None
-    #    print(f"{color.RED}Unable to find {color.PURPLE}{distro_id}{color.RED} in ACVDB{color.END}")
-    #    sys.exit(1)
-    
+
     channel_url = dataframe['channel_url'][0]
     acvdb_conn.close()
     return channel_url
@@ -125,11 +154,47 @@ def parse_args():
         "--validate",
         action='store_true',
     )
+    parser.add_argument(
+        "--profile",
+        type=str,
+        choices=WURL_AWS_ACCOUNTS.keys(),
+        default=DEFAULT_WURL_AWS_ACCOUNT,
+        required=True,
+    )
     return parser.parse_args()
+
+def get_aws_assumed_role_credentials(account_name, credentials):
+    sts_credentials = {}
+    role = WURL_AWS_ACCOUNTS.get(account_name)
+    if role is not None:
+        client = boto3.client(
+            "sts",
+            aws_access_key_id=credentials["AWS_ACCESS_KEY_ID"],
+            aws_secret_access_key=credentials["AWS_SECRET_ACCESS_KEY"],
+        )
+        assumed_role = client.assume_role(
+            RoleArn=role, RoleSessionName=f"Assumed_{account_name}_Session"
+        )
+        sts_credentials = assumed_role["Credentials"]
+    return sts_credentials
 
 def main():
     args = parse_args()
-    client = boto3.client('cloudfront')
+
+    if args.profile != DEFAULT_WURL_AWS_ACCOUNT:
+        sts_credentials = get_aws_assumed_role_credentials(args.profile, AWS_CREDENTIALS)
+        AWS_CREDENTIALS["AWS_ACCESS_KEY_ID"] = sts_credentials["AccessKeyId"]
+        AWS_CREDENTIALS["AWS_SECRET_ACCESS_KEY"] = sts_credentials["SecretAccessKey"]
+        AWS_CREDENTIALS["AWS_SESSION_TOKEN"] = sts_credentials["SessionToken"]
+    client = boto3.client(
+        "cloudfront",
+        aws_access_key_id=AWS_CREDENTIALS["AWS_ACCESS_KEY_ID"],
+        aws_secret_access_key=AWS_CREDENTIALS["AWS_SECRET_ACCESS_KEY"],
+        aws_session_token=AWS_CREDENTIALS.get("AWS_SESSION_TOKEN", None),
+        region_name="us-east-1",
+        config=Config(retries={"max_attempts": 10, "mode": "adaptive"}),
+    )
+
     # Setup DB connection
     try:
         dbconn = sqlite3.connect('cors.db')
@@ -172,7 +237,7 @@ def main():
     for distro in distros_to_work_on:
         # Check if this distro has a channel URL
         # If it doesn't, this is probably a DEV channel or on Highwinds so we skip it
-        channel_url = get_channel_url(distro[0])
+        channel_url = get_channel_url(distro[0], args.profile)
         if channel_url is None:
             print(f"{color.RED}Didn't find {color.PURPLE}{distro[0]}{color.RED} in ACVDB. Skipping...{color.END}")
             distros_skipped.append(distro[0])
@@ -186,6 +251,8 @@ def main():
                 continue
             else:
                 print(f"{color.RED}Unable to validate CORS headers for {color.PURPLE}{distro[0]}{color.END}")
+                # headers = get_headers(channel_url)
+                # print(json.dumps(headers, indent=2))
                 distros_skipped.append(distro[0])
                 continue
         # If not running in validate mode, we need to actually do stuff

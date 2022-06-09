@@ -3,8 +3,6 @@
 # Usage:
 # cors_update.py --mode [noop|single|all] [--id <distribution ID>]
 
-# TODO: Thread for each of the 6 CORS lambdas
-
 import os
 from pickle import TRUE
 import boto3
@@ -12,6 +10,18 @@ import argparse
 import json
 import sqlite3
 import time
+from botocore.config import Config
+
+AWS_CREDENTIALS = {
+    "AWS_ACCESS_KEY_ID": os.environ["AWS_ACCESS_KEY_ID"],
+    "AWS_SECRET_ACCESS_KEY": os.environ["AWS_SECRET_ACCESS_KEY"],
+}
+
+DEFAULT_WURL_AWS_ACCOUNT = "root"
+WURL_AWS_ACCOUNTS = {
+    "root": "",
+    "sandbox": "arn:aws:iam::709097557611:role/wurl-sandboxSTSRole",
+}
 
 OPMODE = [
     "noop",
@@ -42,10 +52,47 @@ def parse_args():
         type=str,
         required=False,
     )
+    parser.add_argument(
+        "--profile",
+        type=str,
+        choices=WURL_AWS_ACCOUNTS.keys(),
+        default=DEFAULT_WURL_AWS_ACCOUNT,
+        required=True,
+    )
     return parser.parse_args()
+
+def get_aws_assumed_role_credentials(account_name, credentials):
+    sts_credentials = {}
+    role = WURL_AWS_ACCOUNTS.get(account_name)
+    if role is not None:
+        client = boto3.client(
+            "sts",
+            aws_access_key_id=credentials["AWS_ACCESS_KEY_ID"],
+            aws_secret_access_key=credentials["AWS_SECRET_ACCESS_KEY"],
+        )
+        assumed_role = client.assume_role(
+            RoleArn=role, RoleSessionName=f"Assumed_{account_name}_Session"
+        )
+        sts_credentials = assumed_role["Credentials"]
+    return sts_credentials
 
 def main():
     args = parse_args()
+
+    if args.profile != DEFAULT_WURL_AWS_ACCOUNT:
+        sts_credentials = get_aws_assumed_role_credentials(args.profile, AWS_CREDENTIALS)
+        AWS_CREDENTIALS["AWS_ACCESS_KEY_ID"] = sts_credentials["AccessKeyId"]
+        AWS_CREDENTIALS["AWS_SECRET_ACCESS_KEY"] = sts_credentials["SecretAccessKey"]
+        AWS_CREDENTIALS["AWS_SESSION_TOKEN"] = sts_credentials["SessionToken"]
+    client = boto3.client(
+        "cloudfront",
+        aws_access_key_id=AWS_CREDENTIALS["AWS_ACCESS_KEY_ID"],
+        aws_secret_access_key=AWS_CREDENTIALS["AWS_SECRET_ACCESS_KEY"],
+        aws_session_token=AWS_CREDENTIALS.get("AWS_SESSION_TOKEN", None),
+        region_name="us-east-1",
+        config=Config(retries={"max_attempts": 10, "mode": "adaptive"}),
+    )
+
     dbconn = sqlite3.connect('cors.db')
     cursor = dbconn.cursor()
     # Check if on of the tables already exists so we don't overwrite them
@@ -60,7 +107,6 @@ def main():
     distros = []
     count_of_distros = 0
     distros_to_update = 0
-    client = boto3.client('cloudfront')
     # If we're in single channel mode, the distros list will contain only one object
     if args.mode == "single":
         distros.append(args.id)

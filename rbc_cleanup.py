@@ -41,9 +41,11 @@ def main():
             this_batch = this_batch.append(result)
             # channel_key, shortname, channel_slug, channel_url, node, manifest_port, origin_manifest, origin_segments, rebroadcast_technology = result.values.tolist()[0]
             num_channels += 1
-    pd.set_option('display.max_colwidth', None)        
-    print(this_batch[['channel_key', 'shortname', 'node', 'rebroadcast_technology', 'origin_segments']])
+    pd.set_option('display.max_colwidth', None)
+    # pd.set_option('display.max_columns', None)    
+    # print(this_batch[['channel_key', 'shortname', 'node', 'rebroadcast_technology', 'origin_segments']])
     print(f"Channels Found: {num_channels}")
+    print(this_batch[['channel_key', 'shortname', 'node']])
     acvdb_conn.close()
 
 if __name__ == "__main__":
