@@ -1,4 +1,3 @@
-from urllib import response
 import boto3
 import sqlite3
 import argparse
@@ -53,6 +52,16 @@ WURL_AWS_ACCOUNTS = {
     "root": "",
     "sandbox": "arn:aws:iam::709097557611:role/wurl-sandboxSTSRole",
 }
+
+def update_config(config, distro_id, etag, client):
+    print(f" {color.YELLOW}== Updating Distribution Config == {color.END}")
+    response = client.update_distribution(DistributionConfig=config, Id=distro_id, IfMatch=etag)
+    if response["ResponseMetadata"]["HTTPStatusCode"] == 200:
+        print(f"{color.GREEN}~ SUCCESS ~{color.END}")
+    else:
+        metadata = response["ResponseMetadata"]
+        print(f"{color.RED}Failed to update configuration on {color.PURPLE}{distro_id}{color.END}")
+        print(json.dumps(metadata, indent=2))
 
 def get_headers(channel_url):
     headers = {"Origin":"www.example.com"}
@@ -290,7 +299,8 @@ def main():
                                 # print(json.dumps(new_config, indent=4, sort_keys=False))
                             else:
                                 print(f"{color.BLUE}Lambda ARN found that did not match: {color.END}{lambda_association['LambdaFunctionARN']}")
-
+            # Push the new config to Cloudfront
+            update_config(new_config, distro[0], etag, client)
 
             # Validate we get the correct CORS headers back
             valid_cors = validate_cors(channel_url)
@@ -298,9 +308,10 @@ def main():
             if not valid_cors:
                 print(f" {color.RED}         ~! UNABLE TO VALIDATE CORS HEADERS AFTER UPDATE !~{color.END}")
                 print(f"  {color.YELLOW}                == Rolling back to old ARN: {color.CYAN}{old_arn}...{color.END}")
+                rollback_config = new_config
                 for extension in PATH_PATTERNS:
                     print(f"{color.PURPLE}{extension}{color.END}")
-                    for pattern in new_config["CacheBehaviors"]["Items"]:
+                    for pattern in rollback_config["CacheBehaviors"]["Items"]:
                         if pattern["PathPattern"] == extension:
                             for lambda_association in pattern["LambdaFunctionAssociations"]["Items"]:
                                 if lambda_association["LambdaFunctionARN"] == new_arn:
@@ -311,6 +322,10 @@ def main():
                                     # print(json.dumps(new_config, indent=4, sort_keys=False))
                                 else:
                                     print(f"{color.BLUE}Lambda ARN found that did not match: {color.END}{lambda_association['LambdaFunctionARN']}")
+                # Push the rollback config to AWS
+                update_config(rollback_config, distro[0], etag, client)
+
+                # Validate we get the original headers after rolling back
                 rollback_headers = get_headers(channel_url)
                 print(f"{color.BLUE}Headers after rollback:{color.END}")
                 print(json.dumps(dict(rollback_headers), indent=2))
