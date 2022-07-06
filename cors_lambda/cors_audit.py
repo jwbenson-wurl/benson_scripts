@@ -139,7 +139,7 @@ def main():
             print(f"{distro} has no CacheBehaviors defined. Skipping.")
             continue
         for path in distro_config["DistributionConfig"]["CacheBehaviors"]["Items"]:
-            if path["PathPattern"] == "/*.m3u8":
+            if path["PathPattern"] in PATH_PATTERNS:
                 print(json.dumps(path, indent=4, sort_keys=False))
                 if path["LambdaFunctionAssociations"]["Quantity"] != 0:
                     lambda_arn = path["LambdaFunctionAssociations"]["Items"][0]["LambdaFunctionARN"]
@@ -151,13 +151,13 @@ def main():
                     print(lambda_key)
                     # INSERT IGNORE distro ID and key from the lambda table into the distros table
                     cursor.execute(f"INSERT OR IGNORE INTO distros (id,lambda) VALUES ('{distro}',{lambda_key})")
-                    distros_to_update += 1
+                    # distros_to_update += 1
         count_of_distros += 1
         
     print(f"Distros scanned: {count_of_distros}")
-    print(f"Number of distros to update: {distros_to_update}")
     cursor.execute("SELECT count(*) FROM distros")
     row_count = cursor.fetchone()[0]
+    print(f"Number of distros to update: {row_count}")
     print(f"Number of rows inserted into Distros: {row_count}")
     cursor.execute("SELECT rowid, arn, (SELECT count(*) from distros WHERE lambda = lambdas.rowid GROUP BY lambda) num FROM lambdas WHERE arn LIKE '%cloudfront-cors-append%'")
     lambda_table = cursor.fetchall()

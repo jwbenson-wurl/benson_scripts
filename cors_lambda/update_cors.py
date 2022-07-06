@@ -209,7 +209,7 @@ def main():
 
     # Setup DB connection
     try:
-        dbconn = sqlite3.connect('cors.db')
+        dbconn = sqlite3.connect('batch1.db')
     except:
         print("Error connecting to database")
     cursor = dbconn.cursor()
@@ -233,13 +233,13 @@ def main():
         if old_arn_id == None:
             sys.exit(f"{color.RED}Old ARN: {old_arn} was not found in the database!{color.END}")
         # Get a list of distribution IDs using that Lambda ARN
-        cursor.execute(f"SELECT id FROM distros WHERE lambda = {old_arn_id}")
+        cursor.execute(f"SELECT DISTINCT id FROM distros WHERE lambda = {old_arn_id}")
         distros_to_work_on = cursor.fetchall()
         # Print a count of the distributions for audit purposes
         print(f"Number of distributions using this ARN: {len(distros_to_work_on)}")
     else:
         print(f"{color.PURPLE}== Running in {color.GREEN}VALIDATE{color.PURPLE} mode.{color.END}")
-        cursor.execute("SELECT id FROM distros")
+        cursor.execute("SELECT DISTINCT id FROM distros")
         distros_to_work_on = cursor.fetchall()
 
     distros_updated = []

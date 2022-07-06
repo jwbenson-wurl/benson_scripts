@@ -1,0 +1,701 @@
+{
+    "ETag": "E222YZJDO8S0EA",
+    "DistributionConfig": {
+        "CallerReference": "fueltv-qa-test-0.sandbox.wurl.dev",
+        "Aliases": {
+            "Quantity": 1,
+            "Items": [
+                "fueltv-qa-test-0.sandbox.wurl.dev"
+            ]
+        },
+        "DefaultRootObject": "",
+        "Origins": {
+            "Quantity": 5,
+            "Items": [
+                {
+                    "Id": "wurl-us-fueltv-fueltv-1-manifest-a",
+                    "DomainName": "qa-node00.rebroadcast.wurl.com",
+                    "OriginPath": "/8050",
+                    "CustomHeaders": {
+                        "Quantity": 2,
+                        "Items": [
+                            {
+                                "HeaderName": "ORIGIN_BASE_URL",
+                                "HeaderValue": "https://d7kagd3tnwoxb5.data.mediastore.us-east-1.amazonaws.com"
+                            },
+                            {
+                                "HeaderName": "SEGMENT_BASE_URL",
+                                "HeaderValue": "https://fueltv-qa-test-0.sandbox.wurl.dev"
+                            }
+                        ]
+                    },
+                    "CustomOriginConfig": {
+                        "HTTPPort": 80,
+                        "HTTPSPort": 443,
+                        "OriginProtocolPolicy": "http-only",
+                        "OriginSslProtocols": {
+                            "Quantity": 3,
+                            "Items": [
+                                "TLSv1",
+                                "TLSv1.1",
+                                "TLSv1.2"
+                            ]
+                        },
+                        "OriginReadTimeout": 30,
+                        "OriginKeepaliveTimeout": 5
+                    },
+                    "ConnectionAttempts": 3,
+                    "ConnectionTimeout": 10,
+                    "OriginShield": {
+                        "Enabled": false
+                    }
+                },
+                {
+                    "Id": "ewnoriginhls-fr-b-origin.hexaglobe.net-euronews-test",
+                    "DomainName": "ewnoriginhls-fr-b-origin.hexaglobe.net",
+                    "OriginPath": "",
+                    "CustomHeaders": {
+                        "Quantity": 0
+                    },
+                    "CustomOriginConfig": {
+                        "HTTPPort": 80,
+                        "HTTPSPort": 443,
+                        "OriginProtocolPolicy": "http-only",
+                        "OriginSslProtocols": {
+                            "Quantity": 3,
+                            "Items": [
+                                "TLSv1",
+                                "TLSv1.1",
+                                "TLSv1.2"
+                            ]
+                        },
+                        "OriginReadTimeout": 30,
+                        "OriginKeepaliveTimeout": 5
+                    },
+                    "ConnectionAttempts": 3,
+                    "ConnectionTimeout": 10,
+                    "OriginShield": {
+                        "Enabled": false
+                    }
+                },
+                {
+                    "Id": "wurl-us-fueltv-fueltv-1-ads",
+                    "DomainName": "segments.mediatailor.us-east-1.amazonaws.com",
+                    "OriginPath": "",
+                    "CustomHeaders": {
+                        "Quantity": 0
+                    },
+                    "CustomOriginConfig": {
+                        "HTTPPort": 80,
+                        "HTTPSPort": 443,
+                        "OriginProtocolPolicy": "match-viewer",
+                        "OriginSslProtocols": {
+                            "Quantity": 3,
+                            "Items": [
+                                "TLSv1",
+                                "TLSv1.1",
+                                "TLSv1.2"
+                            ]
+                        },
+                        "OriginReadTimeout": 30,
+                        "OriginKeepaliveTimeout": 5
+                    },
+                    "ConnectionAttempts": 3,
+                    "ConnectionTimeout": 10,
+                    "OriginShield": {
+                        "Enabled": false
+                    }
+                },
+                {
+                    "Id": "wurl-us-fueltv-fueltv-1-manifest-b",
+                    "DomainName": "qa-node00.rebroadcast.wurl.com",
+                    "OriginPath": "/8050",
+                    "CustomHeaders": {
+                        "Quantity": 2,
+                        "Items": [
+                            {
+                                "HeaderName": "SEGMENT_BASE_URL",
+                                "HeaderValue": "https://fueltv-qa-test-0.sandbox.wurl.dev"
+                            },
+                            {
+                                "HeaderName": "ORIGIN_BASE_URL",
+                                "HeaderValue": "https://d7kagd3tnwoxb5.data.mediastore.us-east-1.amazonaws.com"
+                            }
+                        ]
+                    },
+                    "CustomOriginConfig": {
+                        "HTTPPort": 80,
+                        "HTTPSPort": 443,
+                        "OriginProtocolPolicy": "http-only",
+                        "OriginSslProtocols": {
+                            "Quantity": 3,
+                            "Items": [
+                                "TLSv1",
+                                "TLSv1.1",
+                                "TLSv1.2"
+                            ]
+                        },
+                        "OriginReadTimeout": 30,
+                        "OriginKeepaliveTimeout": 5
+                    },
+                    "ConnectionAttempts": 3,
+                    "ConnectionTimeout": 10,
+                    "OriginShield": {
+                        "Enabled": false
+                    }
+                },
+                {
+                    "Id": "wurl-us-fueltv-fueltv-1-segments",
+                    "DomainName": "d7kagd3tnwoxb5.data.mediastore.us-east-1.amazonaws.com",
+                    "OriginPath": "",
+                    "CustomHeaders": {
+                        "Quantity": 2,
+                        "Items": [
+                            {
+                                "HeaderName": "ORIGIN_BASE_URL",
+                                "HeaderValue": "https://d7kagd3tnwoxb5.data.mediastore.us-east-1.amazonaws.com"
+                            },
+                            {
+                                "HeaderName": "SEGMENT_BASE_URL",
+                                "HeaderValue": "https://fueltv-qa-test-0.sandbox.wurl.dev"
+                            }
+                        ]
+                    },
+                    "CustomOriginConfig": {
+                        "HTTPPort": 80,
+                        "HTTPSPort": 443,
+                        "OriginProtocolPolicy": "https-only",
+                        "OriginSslProtocols": {
+                            "Quantity": 3,
+                            "Items": [
+                                "TLSv1",
+                                "TLSv1.1",
+                                "TLSv1.2"
+                            ]
+                        },
+                        "OriginReadTimeout": 30,
+                        "OriginKeepaliveTimeout": 5
+                    },
+                    "ConnectionAttempts": 3,
+                    "ConnectionTimeout": 10,
+                    "OriginShield": {
+                        "Enabled": false
+                    }
+                }
+            ]
+        },
+        "OriginGroups": {
+            "Quantity": 1,
+            "Items": [
+                {
+                    "Id": "wurl-us-fueltv-fueltv-1-manifests",
+                    "FailoverCriteria": {
+                        "StatusCodes": {
+                            "Quantity": 6,
+                            "Items": [
+                                403,
+                                404,
+                                500,
+                                502,
+                                503,
+                                504
+                            ]
+                        }
+                    },
+                    "Members": {
+                        "Quantity": 2,
+                        "Items": [
+                            {
+                                "OriginId": "wurl-us-fueltv-fueltv-1-manifest-a"
+                            },
+                            {
+                                "OriginId": "wurl-us-fueltv-fueltv-1-manifest-b"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "DefaultCacheBehavior": {
+            "TargetOriginId": "wurl-us-fueltv-fueltv-1-manifests",
+            "TrustedSigners": {
+                "Enabled": false,
+                "Quantity": 0
+            },
+            "TrustedKeyGroups": {
+                "Enabled": false,
+                "Quantity": 0
+            },
+            "ViewerProtocolPolicy": "allow-all",
+            "AllowedMethods": {
+                "Quantity": 2,
+                "Items": [
+                    "HEAD",
+                    "GET"
+                ],
+                "CachedMethods": {
+                    "Quantity": 2,
+                    "Items": [
+                        "HEAD",
+                        "GET"
+                    ]
+                }
+            },
+            "SmoothStreaming": false,
+            "Compress": false,
+            "LambdaFunctionAssociations": {
+                "Quantity": 0
+            },
+            "FunctionAssociations": {
+                "Quantity": 0
+            },
+            "FieldLevelEncryptionId": "",
+            "ForwardedValues": {
+                "QueryString": true,
+                "Cookies": {
+                    "Forward": "none"
+                },
+                "Headers": {
+                    "Quantity": 0
+                },
+                "QueryStringCacheKeys": {
+                    "Quantity": 0
+                }
+            },
+            "MinTTL": 86400,
+            "DefaultTTL": 86400,
+            "MaxTTL": 86400
+        },
+        "CacheBehaviors": {
+            "Quantity": 7,
+            "Items": [
+                {
+                    "PathPattern": "/ads/*",
+                    "TargetOriginId": "wurl-us-fueltv-fueltv-1-ads",
+                    "TrustedSigners": {
+                        "Enabled": false,
+                        "Quantity": 0
+                    },
+                    "TrustedKeyGroups": {
+                        "Enabled": false,
+                        "Quantity": 0
+                    },
+                    "ViewerProtocolPolicy": "allow-all",
+                    "AllowedMethods": {
+                        "Quantity": 2,
+                        "Items": [
+                            "HEAD",
+                            "GET"
+                        ],
+                        "CachedMethods": {
+                            "Quantity": 2,
+                            "Items": [
+                                "HEAD",
+                                "GET"
+                            ]
+                        }
+                    },
+                    "SmoothStreaming": false,
+                    "Compress": false,
+                    "LambdaFunctionAssociations": {
+                        "Quantity": 2,
+                        "Items": [
+                            {
+                                "LambdaFunctionARN": "arn:aws:lambda:us-east-1:709097557611:function:cloudfront-mediatailor-ads-rewrite:2",
+                                "EventType": "origin-request",
+                                "IncludeBody": false
+                            },
+                            {
+                                "LambdaFunctionARN": "arn:aws:lambda:us-east-1:709097557611:function:cloudfront-cors-append:4",
+                                "EventType": "origin-response",
+                                "IncludeBody": false
+                            }
+                        ]
+                    },
+                    "FunctionAssociations": {
+                        "Quantity": 0
+                    },
+                    "FieldLevelEncryptionId": "",
+                    "ForwardedValues": {
+                        "QueryString": true,
+                        "Cookies": {
+                            "Forward": "none"
+                        },
+                        "Headers": {
+                            "Quantity": 0
+                        },
+                        "QueryStringCacheKeys": {
+                            "Quantity": 0
+                        }
+                    },
+                    "MinTTL": 3600,
+                    "DefaultTTL": 3600,
+                    "MaxTTL": 3600
+                },
+                {
+                    "PathPattern": "/*.m3u8",
+                    "TargetOriginId": "wurl-us-fueltv-fueltv-1-manifests",
+                    "TrustedSigners": {
+                        "Enabled": false,
+                        "Quantity": 0
+                    },
+                    "TrustedKeyGroups": {
+                        "Enabled": false,
+                        "Quantity": 0
+                    },
+                    "ViewerProtocolPolicy": "allow-all",
+                    "AllowedMethods": {
+                        "Quantity": 2,
+                        "Items": [
+                            "HEAD",
+                            "GET"
+                        ],
+                        "CachedMethods": {
+                            "Quantity": 2,
+                            "Items": [
+                                "HEAD",
+                                "GET"
+                            ]
+                        }
+                    },
+                    "SmoothStreaming": false,
+                    "Compress": false,
+                    "LambdaFunctionAssociations": {
+                        "Quantity": 1,
+                        "Items": [
+                            {
+                                "LambdaFunctionARN": "arn:aws:lambda:us-east-1:709097557611:function:cloudfront-cors-append:4",
+                                "EventType": "origin-response",
+                                "IncludeBody": false
+                            }
+                        ]
+                    },
+                    "FunctionAssociations": {
+                        "Quantity": 0
+                    },
+                    "FieldLevelEncryptionId": "",
+                    "ForwardedValues": {
+                        "QueryString": true,
+                        "Cookies": {
+                            "Forward": "none"
+                        },
+                        "Headers": {
+                            "Quantity": 0
+                        },
+                        "QueryStringCacheKeys": {
+                            "Quantity": 0
+                        }
+                    },
+                    "MinTTL": 0,
+                    "DefaultTTL": 3,
+                    "MaxTTL": 3
+                },
+                {
+                    "PathPattern": "/*.ts",
+                    "TargetOriginId": "ewnoriginhls-fr-b-origin.hexaglobe.net-euronews-test",
+                    "TrustedSigners": {
+                        "Enabled": false,
+                        "Quantity": 0
+                    },
+                    "TrustedKeyGroups": {
+                        "Enabled": false,
+                        "Quantity": 0
+                    },
+                    "ViewerProtocolPolicy": "allow-all",
+                    "AllowedMethods": {
+                        "Quantity": 2,
+                        "Items": [
+                            "HEAD",
+                            "GET"
+                        ],
+                        "CachedMethods": {
+                            "Quantity": 2,
+                            "Items": [
+                                "HEAD",
+                                "GET"
+                            ]
+                        }
+                    },
+                    "SmoothStreaming": false,
+                    "Compress": false,
+                    "LambdaFunctionAssociations": {
+                        "Quantity": 1,
+                        "Items": [
+                            {
+                                "LambdaFunctionARN": "arn:aws:lambda:us-east-1:709097557611:function:cloudfront-cors-append:3",
+                                "EventType": "origin-response",
+                                "IncludeBody": false
+                            }
+                        ]
+                    },
+                    "FunctionAssociations": {
+                        "Quantity": 0
+                    },
+                    "FieldLevelEncryptionId": "",
+                    "ForwardedValues": {
+                        "QueryString": true,
+                        "Cookies": {
+                            "Forward": "none"
+                        },
+                        "Headers": {
+                            "Quantity": 0
+                        },
+                        "QueryStringCacheKeys": {
+                            "Quantity": 0
+                        }
+                    },
+                    "MinTTL": 900,
+                    "DefaultTTL": 86400,
+                    "MaxTTL": 86400
+                },
+                {
+                    "PathPattern": "/*.key",
+                    "TargetOriginId": "wurl-us-fueltv-fueltv-1-segments",
+                    "TrustedSigners": {
+                        "Enabled": false,
+                        "Quantity": 0
+                    },
+                    "TrustedKeyGroups": {
+                        "Enabled": false,
+                        "Quantity": 0
+                    },
+                    "ViewerProtocolPolicy": "allow-all",
+                    "AllowedMethods": {
+                        "Quantity": 2,
+                        "Items": [
+                            "HEAD",
+                            "GET"
+                        ],
+                        "CachedMethods": {
+                            "Quantity": 2,
+                            "Items": [
+                                "HEAD",
+                                "GET"
+                            ]
+                        }
+                    },
+                    "SmoothStreaming": false,
+                    "Compress": false,
+                    "LambdaFunctionAssociations": {
+                        "Quantity": 1,
+                        "Items": [
+                            {
+                                "LambdaFunctionARN": "arn:aws:lambda:us-east-1:709097557611:function:cloudfront-cors-append:4",
+                                "EventType": "origin-response",
+                                "IncludeBody": false
+                            }
+                        ]
+                    },
+                    "FunctionAssociations": {
+                        "Quantity": 0
+                    },
+                    "FieldLevelEncryptionId": "",
+                    "ForwardedValues": {
+                        "QueryString": true,
+                        "Cookies": {
+                            "Forward": "none"
+                        },
+                        "Headers": {
+                            "Quantity": 0
+                        },
+                        "QueryStringCacheKeys": {
+                            "Quantity": 0
+                        }
+                    },
+                    "MinTTL": 900,
+                    "DefaultTTL": 86400,
+                    "MaxTTL": 86400
+                },
+                {
+                    "PathPattern": "/*.vtt",
+                    "TargetOriginId": "wurl-us-fueltv-fueltv-1-manifests",
+                    "TrustedSigners": {
+                        "Enabled": false,
+                        "Quantity": 0
+                    },
+                    "TrustedKeyGroups": {
+                        "Enabled": false,
+                        "Quantity": 0
+                    },
+                    "ViewerProtocolPolicy": "allow-all",
+                    "AllowedMethods": {
+                        "Quantity": 2,
+                        "Items": [
+                            "HEAD",
+                            "GET"
+                        ],
+                        "CachedMethods": {
+                            "Quantity": 2,
+                            "Items": [
+                                "HEAD",
+                                "GET"
+                            ]
+                        }
+                    },
+                    "SmoothStreaming": false,
+                    "Compress": false,
+                    "LambdaFunctionAssociations": {
+                        "Quantity": 1,
+                        "Items": [
+                            {
+                                "LambdaFunctionARN": "arn:aws:lambda:us-east-1:709097557611:function:cloudfront-cors-append:4",
+                                "EventType": "origin-response",
+                                "IncludeBody": false
+                            }
+                        ]
+                    },
+                    "FunctionAssociations": {
+                        "Quantity": 0
+                    },
+                    "FieldLevelEncryptionId": "",
+                    "ForwardedValues": {
+                        "QueryString": true,
+                        "Cookies": {
+                            "Forward": "none"
+                        },
+                        "Headers": {
+                            "Quantity": 0
+                        },
+                        "QueryStringCacheKeys": {
+                            "Quantity": 0
+                        }
+                    },
+                    "MinTTL": 300,
+                    "DefaultTTL": 600,
+                    "MaxTTL": 600
+                },
+                {
+                    "PathPattern": "/*.webvtt",
+                    "TargetOriginId": "wurl-us-fueltv-fueltv-1-manifests",
+                    "TrustedSigners": {
+                        "Enabled": false,
+                        "Quantity": 0
+                    },
+                    "TrustedKeyGroups": {
+                        "Enabled": false,
+                        "Quantity": 0
+                    },
+                    "ViewerProtocolPolicy": "allow-all",
+                    "AllowedMethods": {
+                        "Quantity": 2,
+                        "Items": [
+                            "HEAD",
+                            "GET"
+                        ],
+                        "CachedMethods": {
+                            "Quantity": 2,
+                            "Items": [
+                                "HEAD",
+                                "GET"
+                            ]
+                        }
+                    },
+                    "SmoothStreaming": false,
+                    "Compress": false,
+                    "LambdaFunctionAssociations": {
+                        "Quantity": 1,
+                        "Items": [
+                            {
+                                "LambdaFunctionARN": "arn:aws:lambda:us-east-1:709097557611:function:cloudfront-cors-append:4",
+                                "EventType": "origin-response",
+                                "IncludeBody": false
+                            }
+                        ]
+                    },
+                    "FunctionAssociations": {
+                        "Quantity": 0
+                    },
+                    "FieldLevelEncryptionId": "",
+                    "ForwardedValues": {
+                        "QueryString": true,
+                        "Cookies": {
+                            "Forward": "none"
+                        },
+                        "Headers": {
+                            "Quantity": 0
+                        },
+                        "QueryStringCacheKeys": {
+                            "Quantity": 0
+                        }
+                    },
+                    "MinTTL": 300,
+                    "DefaultTTL": 600,
+                    "MaxTTL": 600
+                },
+                {
+                    "PathPattern": "/prefetchFileList.txt",
+                    "TargetOriginId": "wurl-us-fueltv-fueltv-1-manifests",
+                    "TrustedSigners": {
+                        "Enabled": false,
+                        "Quantity": 0
+                    },
+                    "TrustedKeyGroups": {
+                        "Enabled": false,
+                        "Quantity": 0
+                    },
+                    "ViewerProtocolPolicy": "allow-all",
+                    "AllowedMethods": {
+                        "Quantity": 2,
+                        "Items": [
+                            "HEAD",
+                            "GET"
+                        ],
+                        "CachedMethods": {
+                            "Quantity": 2,
+                            "Items": [
+                                "HEAD",
+                                "GET"
+                            ]
+                        }
+                    },
+                    "SmoothStreaming": false,
+                    "Compress": true,
+                    "LambdaFunctionAssociations": {
+                        "Quantity": 1,
+                        "Items": [
+                            {
+                                "LambdaFunctionARN": "arn:aws:lambda:us-east-1:709097557611:function:cloudfront-cors-append:2",
+                                "EventType": "origin-response",
+                                "IncludeBody": false
+                            }
+                        ]
+                    },
+                    "FunctionAssociations": {
+                        "Quantity": 0
+                    },
+                    "FieldLevelEncryptionId": "",
+                    "CachePolicyId": "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
+                }
+            ]
+        },
+        "CustomErrorResponses": {
+            "Quantity": 0
+        },
+        "Comment": "wurl-us-fueltv_fueltv_1 HLS Rebroadcast [qa]",
+        "Logging": {
+            "Enabled": true,
+            "IncludeCookies": false,
+            "Bucket": "wurl-cloudfront-logs-sandbox.s3.amazonaws.com",
+            "Prefix": "fueltv-qa-test-0.sandbox.wurl.dev"
+        },
+        "PriceClass": "PriceClass_100",
+        "Enabled": true,
+        "ViewerCertificate": {
+            "CloudFrontDefaultCertificate": false,
+            "ACMCertificateArn": "arn:aws:acm:us-east-1:709097557611:certificate/4617c6d6-a8fc-4cdd-89ae-1763574ce8a4",
+            "SSLSupportMethod": "sni-only",
+            "MinimumProtocolVersion": "TLSv1.2_2019",
+            "Certificate": "arn:aws:acm:us-east-1:709097557611:certificate/4617c6d6-a8fc-4cdd-89ae-1763574ce8a4",
+            "CertificateSource": "acm"
+        },
+        "Restrictions": {
+            "GeoRestriction": {
+                "RestrictionType": "none",
+                "Quantity": 0
+            }
+        },
+        "WebACLId": "",
+        "HttpVersion": "http2",
+        "IsIPV6Enabled": true
+    }
+}
