@@ -11,6 +11,9 @@ import json
 import sqlite3
 import time
 from botocore.config import Config
+import sys
+import pandas as pd
+import psycopg2
 
 AWS_CREDENTIALS = {
     "AWS_ACCESS_KEY_ID": os.environ["AWS_ACCESS_KEY_ID"],
@@ -37,6 +40,11 @@ PATH_PATTERNS=[
     "/*.vtt",
     "/*.webvtt",
 ]
+
+ACVDB_HOST = "acvdb.chhjlyz9fpln.us-east-1.rds.amazonaws.com"
+ACVDB_USER = "svcdbadmin"
+ACVDB_PASS = os.environ["PGPASSWORD"]
+ACVDB_DATABASE = "channelsvars"
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -93,6 +101,15 @@ def main():
         config=Config(retries={"max_attempts": 10, "mode": "adaptive"}),
     )
 
+    try:
+        acvdb_conn = psycopg2.connect(
+            f"dbname='{ACVDB_DATABASE}' user='{ACVDB_USER}' host='{ACVDB_HOST}' password='{ACVDB_PASS}'"
+        )
+        acvdb_cur = acvdb_conn.cursor()
+    except Exception as error:
+        print(f"Failed to connect to ACVDB due to the following error: {error}")
+        sys.exit(1)
+
     dbconn = sqlite3.connect('cors.db')
     cursor = dbconn.cursor()
     # Check if on of the tables already exists so we don't overwrite them
@@ -102,7 +119,7 @@ def main():
         distros_exists = True
 
     if not distros_exists:
-        cursor.execute("CREATE TABLE distros (id varchar(18) NOT NULL UNIQUE, lambda int)")
+        cursor.execute("CREATE TABLE distros (id varchar(18) NOT NULL UNIQUE, lambda int, channel_key varchar(255))")
         cursor.execute("CREATE TABLE lambdas (arn varchar(255) NOT NULL UNIQUE)")
     distros = []
     count_of_distros = 0
@@ -149,8 +166,19 @@ def main():
                     cursor.execute(f"SELECT rowid FROM lambdas WHERE arn = '{lambda_arn}'")
                     lambda_key = cursor.fetchone()[0]
                     print(lambda_key)
+                    channel_key = ''
+                    dataframe = pd.read_sql_query(
+                        sql=(
+                            f"select channel_key from hlsrebroadcast where cdn_dns = '{distro}';"
+                        ),
+                        con=acvdb_conn,
+                    )
+                    if dataframe.empty:
+                        print(f"No channel key found for {distro}")
+                    else:
+                        channel_key = dataframe['channel_key'][0]
                     # INSERT IGNORE distro ID and key from the lambda table into the distros table
-                    cursor.execute(f"INSERT OR IGNORE INTO distros (id,lambda) VALUES ('{distro}',{lambda_key})")
+                    cursor.execute(f"INSERT OR IGNORE INTO distros (id,lambda,channel_key) VALUES ('{distro}',{lambda_key},'{channel_key}')")
                     # distros_to_update += 1
         count_of_distros += 1
         

@@ -74,14 +74,20 @@ def get_headers(channel_url):
     cors_headers = dict((k, r.headers[k].lower()) for k in CORS_HEADER_KEYS if k in r.headers)
     return cors_headers
 
-def validate_cors(channel_url):
+def validate_cors(channel_url, original_headers):
     print(f"{color.YELLOW} == Validating CORS headers for {color.CYAN}{channel_url}{color.END}")
     # channel_url = get_channel_url(distro_id)
     print(f"Channel URL: {color.CYAN}{channel_url}{color.END}")
     try:
         response_headers = get_headers(channel_url)
+
         if response_headers == None:
             return False
+        elif response_headers == original_headers:
+            print(f"{color.GREEN}Successfully validated headers for {color.CYAN}{channel_url}{color.END}")
+            print(f"{color.BLUE}New headers:{color.END}")
+            print(json.dumps(dict(response_headers), indent=2))
+            return True
         # print(json.dumps(dict(response_headers), indent=2))
         if "access-control-allow-origin" not in response_headers.keys():
             return False
@@ -300,13 +306,17 @@ def main():
                             else:
                                 print(f"{color.BLUE}Lambda ARN found that did not match: {color.END}{lambda_association['LambdaFunctionARN']}")
             # Push the new config to Cloudfront
+
             update_config(new_config, distro[0], etag, client)
 
             # Validate we get the correct CORS headers back
-            valid_cors = validate_cors(channel_url)
+            valid_cors = validate_cors(channel_url, original_headers)
             # If not, push the old ARN back in and revalidate, then exit with error
             if not valid_cors:
                 print(f" {color.RED}         ~! UNABLE TO VALIDATE CORS HEADERS AFTER UPDATE !~{color.END}")
+                failed_headers = get_headers(channel_url)
+                print(f"{color.YELLOW}Failed headers:{color.END}")
+                print(json.dumps(dict(failed_headers), indent=2))
                 print(f"  {color.YELLOW}                == Rolling back to old ARN: {color.CYAN}{old_arn}...{color.END}")
                 rollback_config = new_config
                 for extension in PATH_PATTERNS:
@@ -323,6 +333,8 @@ def main():
                                 else:
                                     print(f"{color.BLUE}Lambda ARN found that did not match: {color.END}{lambda_association['LambdaFunctionARN']}")
                 # Push the rollback config to AWS
+                current_config = client.get_distribution_config(Id=distro[0])
+                etag = current_config["ETag"]
                 update_config(rollback_config, distro[0], etag, client)
 
                 # Validate we get the original headers after rolling back
